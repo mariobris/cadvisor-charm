@@ -1,0 +1,6 @@
+options:
+  basic:
+    use_venv: true
+includes:
+  - 'layer:basic'
+  - 'interface:http'

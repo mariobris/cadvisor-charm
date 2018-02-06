@@ -1,0 +1,19 @@
+options:
+  port:
+    type: int
+    default: "8080"
+    description: "cAdvisor listening port."
+  install_source:
+    type: string
+    default: False
+    description: "A short description of the configuration option"
+  install_keys:
+    type: string
+    default: 
+    description: "A short description of the configuration option"
+  install_file:
+    type: string
+    description: |
+      Location where cAdvisor .deb package can be found. If isntall_sources
+      and install_keys opetinos are ignored. Example: |
+        install_file: htt://my.company.com/packages/cadvisor/cadvisor_0.25_amd64.deb
