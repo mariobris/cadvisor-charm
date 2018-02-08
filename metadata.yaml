@@ -9,7 +9,7 @@ tags:
   # https://jujucharms.com/docs/stable/authors-charm-metadata
   - monitoring
   - performance
-subordinate: true
+subordinate: false
 provides:
   target:
     interface: http

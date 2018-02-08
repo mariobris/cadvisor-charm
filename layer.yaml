@@ -4,3 +4,4 @@ options:
 includes:
   - 'layer:basic'
   - 'interface:http'
+repo: git@gitlab.tools.in.pan-net.eu:x258599/cadvisor_charm.git
