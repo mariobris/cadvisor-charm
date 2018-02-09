@@ -1,5 +1,8 @@
 options:
   basic:
+    packages:
+    - python3-requests
+    - python3-yaml
     use_venv: true
 includes:
   - 'layer:basic'
