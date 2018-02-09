@@ -289,7 +289,7 @@
     "layer.yaml": [
       "cadvisor", 
       "dynamic", 
-      "3b449e9175367217edf1c12a1baebb41591f39d4450c3ec308ce1e7441b541a3"
+      "c4df34a6adf6541fa3e560aac895b00b7bd2602c8357bf8057da9b3669c34e6e"
     ], 
     "lib/charms/layer/__init__.py": [
       "layer:basic", 
@@ -319,7 +319,7 @@
     "reactive/cadvisor.py": [
       "cadvisor", 
       "static", 
-      "fada49b658160e1c6521a13f783c9075fa453a5a4310f520755be938a5b14865"
+      "023ac06011281e82f0dd8612fa6467a55b0408f6e6fdcd85772b2e49562fd083"
     ], 
     "requirements.txt": [
       "layer:basic", 

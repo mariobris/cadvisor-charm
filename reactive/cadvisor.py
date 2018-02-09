@@ -15,7 +15,7 @@ CADVISOR_TMPL = 'cadvisor.j2'
 @when_not('cadvisor.installed')
 def install_cadvisor():
     config = hookenv.config()
-    install_opts = ('isntall_sources', 'install_keys')
+    install_opts = ('install_sources', 'install_keys')
     hookenv.status_set('maintenance', 'Installing cAdvisor')
 
     if config.changed('install_file') and config.get('install_file', False):
@@ -27,11 +27,11 @@ def install_cadvisor():
             for block in r.iter_content(1024):
                 f.write(block)
         subprocess.check_call(['dpkg', '-i', pkg_file])
-    elif any(config.chagned(opt) for opt in isntall_opts):
+    elif any(config.chagned(opt) for opt in install_opts):
         hookenv.status_set('maintenance', 'Installing deb pkgs')
         packages = ['cadvisor']
         fetch.configure_sources(update=True)
-        fetch.apt_isntall(packages)
+        fetch.apt_install(packages)
     set_state('cadvisor.installed')
     hookenv.status_set('active', 'Completed installing cAdvisor')
 # Install from --resources cadvisor=cadvisor.deb
