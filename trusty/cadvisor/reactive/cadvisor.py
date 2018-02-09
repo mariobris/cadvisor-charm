@@ -11,6 +11,7 @@ from charms.reactive.helpers import any_file_changed, is_state, data_changed
 SVCNAME = 'cadvisor'
 CADVISOR = '/etc/default/cadvisor'
 CADVISOR_TMPL = 'cadvisor.j2'
+proxy=""
 
 @when_not('cadvisor.installed')
 def install_cadvisor():
