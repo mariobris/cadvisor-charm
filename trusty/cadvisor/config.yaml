@@ -13,7 +13,7 @@
     "description": "A short description of the configuration option"
   "install_file":
     "type": "string"
-    "default": !!null ""
+    "default": "http://archive.ubuntu.com/extra/cadvisor/cadvisor_0.28.3.6+5a2e3d06pannet_amd64.deb"
     "description": |
       Location where cAdvisor .deb package can be found. If isntall_sources
       and install_keys opetinos are ignored. Example: |
