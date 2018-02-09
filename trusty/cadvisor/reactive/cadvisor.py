@@ -27,7 +27,7 @@ def install_cadvisor():
             for block in r.iter_content(1024):
                 f.write(block)
         subprocess.check_call(['dpkg', '-i', pkg_file])
-    elif any(config.chagned(opt) for opt in install_opts):
+    elif any(config.changed(opt) for opt in install_opts):
         hookenv.status_set('maintenance', 'Installing deb pkgs')
         packages = ['cadvisor']
         fetch.configure_sources(update=True)
