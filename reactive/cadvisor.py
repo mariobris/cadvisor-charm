@@ -11,6 +11,7 @@ from charms.reactive.helpers import any_file_changed, is_state, data_changed
 SVCNAME = 'cadvisor'
 CADVISOR = '/etc/default/cadvisor'
 CADVISOR_TMPL = 'cadvisor.j2'
+proxy=""
 
 @when_not('cadvisor.installed')
 def install_cadvisor():
@@ -71,31 +72,3 @@ def restart_cadvisor():
         hookenv.status_set('maintenance', msg)
         host.service_restart(SVCNAME)
     hookenv.status_set('active', 'Ready')
-    set_state('cadvisor.started')
-    hookenv.status_set('active', 'Started {}'.format(SVCNAME))
-
-@when('cadvisor.started')
-@when('target.available')
-def configure_cadvisor_relation(target):
-    config = hookenv.config()
-    if data_changed('target.config', config):
-      try:
-        hostname=hookenv.network_get_primary_address('target')
-      except NotImplementedError:
-        hostname=hookenv.unit_get('private-address')
-      target.configure(hostname=hostname, port=config.get('port'))
-      hookenv.status_set('active', 'Ready')
-
-def check_ports(new_port):
-    kv = unitdata.kv()
-    if kv.get('cadvisor.port') != new_port:
-        hookenv.open_port(new_port)
-        if kv.get('cadvisor.port'):  # Dont try to close non existing ports
-            hookenv.close_port(kv.get('cadvisor.port'))
-        kv.set('cadvisor.port', new_port)
-
-@hook('upgrade-charm')
-def upgrade_charm():
-    hookenv.status_set('maintenance', 'Forcing package update and reconfiguration on upgrade-charm')
-    remove_state('cadvisor.installed')
-    remove_state('cadvisor.configured')
