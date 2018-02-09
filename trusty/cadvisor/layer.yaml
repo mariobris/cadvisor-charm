@@ -4,7 +4,7 @@
     - "python3-requests"
     - "python3-yaml"
     "use_venv": !!bool "true"
-    "include_system_packages": !!bool "false"
+    "include_system_packages": !!bool "true"
   "cadvisor": {}
 "includes":
 - "layer:basic"

@@ -289,7 +289,7 @@
     "layer.yaml": [
       "cadvisor", 
       "dynamic", 
-      "ed5120a32950343d65e98e998a231b43ee6029e30f44a282717397b8a1844f2d"
+      "3b449e9175367217edf1c12a1baebb41591f39d4450c3ec308ce1e7441b541a3"
     ], 
     "lib/charms/layer/__init__.py": [
       "layer:basic", 
