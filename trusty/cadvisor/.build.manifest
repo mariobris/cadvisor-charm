@@ -3,6 +3,7 @@
     "layer:basic", 
     "cadvisor", 
     "interface:http", 
+    "interface:juju-info", 
     "build"
   ], 
   "signatures": {
@@ -39,7 +40,7 @@
     "config.yaml": [
       "cadvisor", 
       "dynamic", 
-      "5ea7d35dc266a1c722479944a6834455ea9f66d4b52bef146cc17150a599b76e"
+      "63718251dcddf5734f2c9df851b1bbd90fa49680fae0c2e2e2540eccdbee52a9"
     ], 
     "copyright": [
       "layer:basic", 
@@ -70,6 +71,21 @@
       "cadvisor", 
       "static", 
       "70188554d673bff61578f4e601a78a91efb4736df727507e984be5ca19335f82"
+    ], 
+    "deps/interface/juju-info/README.md": [
+      "cadvisor", 
+      "static", 
+      "4589dd14b868df060bd263d988b3f556738db5ca5f02019b8c4b706501f94b6b"
+    ], 
+    "deps/interface/juju-info/interface.yaml": [
+      "cadvisor", 
+      "static", 
+      "0d0057ed0bda75157e8314a1259e1a8bb883d2f738ad1b731177e821b5b1b542"
+    ], 
+    "deps/interface/juju-info/requires.py": [
+      "cadvisor", 
+      "static", 
+      "a9a1ec6099b0d471e5a2b1456b870cd9d799ab1646d075261593b56340093504"
     ], 
     "deps/layer/basic/.gitignore": [
       "cadvisor", 
@@ -196,6 +212,26 @@
       "static", 
       "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
     ], 
+    "hooks/host-system-relation-broken": [
+      "interface:juju-info", 
+      "dynamic", 
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ], 
+    "hooks/host-system-relation-changed": [
+      "interface:juju-info", 
+      "dynamic", 
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ], 
+    "hooks/host-system-relation-departed": [
+      "interface:juju-info", 
+      "dynamic", 
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ], 
+    "hooks/host-system-relation-joined": [
+      "interface:juju-info", 
+      "dynamic", 
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ], 
     "hooks/install": [
       "layer:basic", 
       "static", 
@@ -240,6 +276,26 @@
       "interface:http", 
       "static", 
       "70188554d673bff61578f4e601a78a91efb4736df727507e984be5ca19335f82"
+    ], 
+    "hooks/relations/juju-info/README.md": [
+      "interface:juju-info", 
+      "static", 
+      "4589dd14b868df060bd263d988b3f556738db5ca5f02019b8c4b706501f94b6b"
+    ], 
+    "hooks/relations/juju-info/__init__.py": [
+      "interface:juju-info", 
+      "static", 
+      "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    ], 
+    "hooks/relations/juju-info/interface.yaml": [
+      "interface:juju-info", 
+      "static", 
+      "0d0057ed0bda75157e8314a1259e1a8bb883d2f738ad1b731177e821b5b1b542"
+    ], 
+    "hooks/relations/juju-info/requires.py": [
+      "interface:juju-info", 
+      "static", 
+      "a9a1ec6099b0d471e5a2b1456b870cd9d799ab1646d075261593b56340093504"
     ], 
     "hooks/start": [
       "layer:basic", 
@@ -289,7 +345,7 @@
     "layer.yaml": [
       "cadvisor", 
       "dynamic", 
-      "c4df34a6adf6541fa3e560aac895b00b7bd2602c8357bf8057da9b3669c34e6e"
+      "5df3078e7d86f5a73bc7a60392891b62f5238fee503b15c7acab6811bcefa059"
     ], 
     "lib/charms/layer/__init__.py": [
       "layer:basic", 
@@ -309,7 +365,7 @@
     "metadata.yaml": [
       "cadvisor", 
       "dynamic", 
-      "d182d5069edf3ffb8f110b9a4d668fcfdeec94817ec51ca2763d9f66f3310efb"
+      "2b49f02bafb1b8f9c75110ae40053f7285eb3603e1115ce9db89bc7e01baef68"
     ], 
     "reactive/__init__.py": [
       "layer:basic", 
@@ -319,7 +375,7 @@
     "reactive/cadvisor.py": [
       "cadvisor", 
       "static", 
-      "d7aca7220834d3054f88f116c35bba2a1e07d9a92621c5ca7ebc6667ebdf2f78"
+      "5bb6dad3254dab0ec23269f7019e6f5376d53a27b9ac754115dc05957e93cd44"
     ], 
     "requirements.txt": [
       "layer:basic", 
@@ -329,7 +385,7 @@
     "templates/cadvisor.j2": [
       "cadvisor", 
       "static", 
-      "f68ce818a1ad7fde1f5b8536e5f2708619ef7b074dec4f8414aed5c7fe05d9bb"
+      "d9833a89b1c67088d0366f85d0dfff4d9f1d753a43418e178a27247a37718808"
     ], 
     "tests/00-setup": [
       "cadvisor", 

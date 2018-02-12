@@ -5,10 +5,12 @@
   cAdvisor (Container Advisor) provides resource usage and performance
   characteristics of running
 "tags":
-  # Replace "misc" with one or more whitelisted tags from this list:
-  # https://jujucharms.com/docs/stable/authors-charm-metadata
-  - "monitoring"
-  - "performance"
+- "monitoring"
+- "performance"
+"requires":
+  "host-system":
+    "interface": "juju-info"
+    "scope": "container"
 "provides":
   "target":
     "interface": "http"
