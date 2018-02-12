@@ -1,0 +1,31 @@
+"options":
+  "port":
+    "type": "int"
+    "default": !!int "8080"
+    "description": "cAdvisor listening port."
+  "install_source":
+    "type": "string"
+    "default": !!null ""
+    "description": "A short description of the configuration option"
+  "install_keys":
+    "type": "string"
+    "default": !!null ""
+    "description": "A short description of the configuration option"
+  "install_file":
+    "type": "string"
+    "default": "http://archive.ubuntu.com/extra/cadvisor/cadvisor_0.28.3.6+5a2e3d06pannet_amd64.deb"
+    "description": |
+      Location where cAdvisor .deb package can be found. If isntall_sources
+      and install_keys opetinos are ignored. Example: |
+        install_file: htt://my.company.com/packages/cadvisor/cadvisor_0.25_amd64.deb
+  "http_proxy":
+    "default": !!null ""
+    "type": "string"
+    "description": |
+      Proxy URL to use for install_file
+  "docker_installed":
+    "type": "boolean"
+    "default": !!bool "false"
+    "description": |
+      This is only for Trusty distro withou docker. Once enabled, it will connect to
+      default docker endpoint (unix:///var/run/docker.sock)

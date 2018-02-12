@@ -19,7 +19,7 @@ options:
       and install_keys opetinos are ignored. Example: |
         install_file: htt://my.company.com/packages/cadvisor/cadvisor_0.25_amd64.deb
   http_proxy:
-    default":
+    default:
     type: string
     description: |
       Proxy URL to use for install_file
