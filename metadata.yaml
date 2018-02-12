@@ -11,3 +11,7 @@ subordinate: false
 provides:
   target:
     interface: http
+requires:
+  host-system:
+    interface: juju-info
+    scope: container
