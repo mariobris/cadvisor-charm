@@ -11,13 +11,19 @@ from charms.reactive.helpers import any_file_changed, is_state, data_changed
 SVCNAME = 'cadvisor'
 CADVISOR = '/etc/default/cadvisor'
 CADVISOR_TMPL = 'cadvisor.j2'
-proxy=""
 
 @when_not('cadvisor.installed')
 def install_cadvisor():
     config = hookenv.config()
     install_opts = ('install_sources', 'install_keys')
     hookenv.status_set('maintenance', 'Installing cAdvisor')
+
+    if config.get('http_proxy'):
+        proxy = {"http": config.get('http_proxy'),
+                 "https": config.get('http_proxy'),
+                 }
+    else:
+        proxy = {}
 
     if config.changed('install_file') and config.get('install_file', False):
         hookenv.status_set('maintenance', 'Installing deb pkgs')
@@ -50,7 +56,6 @@ def setup_cadvisor():
     render(source=CADVISOR_TMPL,
            target=CADVISOR,
            context=settings,
-           owner='root', group='root',
            perms=0o640,
            )
     check_ports(config.get('port'))
@@ -72,3 +77,23 @@ def restart_cadvisor():
         hookenv.status_set('maintenance', msg)
         host.service_restart(SVCNAME)
     hookenv.status_set('active', 'Ready')
+
+@when('cadvisor.started')
+@when('target.available')
+def configure_cadvisor_relation(target):
+    config = hookenv.config() 
+    if data_changed('target.config', config):
+      try: 
+        hostname=hookenv.network_get_primary_address('target').decode("utf-8")
+      except NotImplementedError:
+        hostname=hookenv.unit_get('private-address')
+      target.configure(hostname=hostname, port=config.get('port'))
+      hookenv.status_set('active', 'Ready')
+
+def check_ports(new_port):
+    kv = unitdata.kv()
+    if kv.get('cadvisor.port') != new_port:
+        hookenv.open_port(new_port)
+        if kv.get('cadvisor.port'):  # Dont try to close non existing ports
+            hookenv.close_port(kv.get('cadvisor.port'))
+        kv.set('cadvisor.port', new_port)
