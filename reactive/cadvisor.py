@@ -9,6 +9,7 @@ from charms.reactive import when, when_not, set_state, remove_state, hook
 from charms.reactive.helpers import any_file_changed, is_state, data_changed
 
 SVCNAME = 'cadvisor'
+PKGNAMES = 'cadvisor'
 CADVISOR = '/etc/default/cadvisor'
 CADVISOR_TMPL = 'cadvisor.j2'
 
@@ -61,7 +62,7 @@ def setup_cadvisor():
     check_ports(config.get('port'))
     set_state('cadvisor.configured')
     remove_state('cadvisor.started')
-    hookenv.status_set('active', 'Completed configuring grafana')
+    hookenv.status_set('active', 'Completed configuring cadvisor')
 
 @when('cadvisor.configured')
 @when_not('cadvisor.started')
@@ -76,19 +77,8 @@ def restart_cadvisor():
         hookenv.log(msg)
         hookenv.status_set('maintenance', msg)
         host.service_restart(SVCNAME)
+    set_state('cadvisor.started')
     hookenv.status_set('active', 'Ready')
-
-@when('cadvisor.started')
-@when('target.available')
-def configure_cadvisor_relation(target):
-    config = hookenv.config() 
-    if data_changed('target.config', config):
-      try: 
-        hostname=hookenv.network_get_primary_address('target').decode("utf-8")
-      except NotImplementedError:
-        hostname=hookenv.unit_get('private-address')
-      target.configure(hostname=hostname, port=config.get('port'))
-      hookenv.status_set('active', 'Ready')
 
 def check_ports(new_port):
     kv = unitdata.kv()
@@ -97,3 +87,31 @@ def check_ports(new_port):
         if kv.get('cadvisor.port'):  # Dont try to close non existing ports
             hookenv.close_port(kv.get('cadvisor.port'))
         kv.set('cadvisor.port', new_port)
+
+@when('cadvisor.started')
+@when('target.available')
+def configure_cadvisor_relation(target):
+    config = hookenv.config() 
+    if data_changed('target.config', config):
+      try: 
+        hostname=hookenv.network_get_primary_address('target')
+      except NotImplementedError:
+        hostname=hookenv.unit_get('private-address')
+      target.configure(hostname=hostname, port=config.get('port'))
+      hookenv.status_set('active', 'Ready')
+
+@when('cadvisor.started')
+@when_not('target.available')
+def setup_target_relation():
+    hookenv.status_set('waiting', 'Waiting for: prometheus')
+
+@when('config.changed')
+    remove_state('cadvisor.configured')
+
+@hook('stop')
+def hook_handler_stop():
+    set_state('cadvisor.stopped')
+
+@when('cadvisor.stopped')
+def remove_packages():
+   fetch.apt_purge(PKGNAMES, fatal=True)
