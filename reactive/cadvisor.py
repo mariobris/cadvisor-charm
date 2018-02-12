@@ -106,6 +106,7 @@ def setup_target_relation():
     hookenv.status_set('waiting', 'Waiting for: prometheus')
 
 @when('config.changed')
+def cadvisor_reconfigure():
     remove_state('cadvisor.configured')
 
 @hook('stop')

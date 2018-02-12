@@ -7,7 +7,7 @@ description: |
 tags:
   - monitoring
   - performance
-subordinate: false
+subordinate: true
 provides:
   target:
     interface: http
