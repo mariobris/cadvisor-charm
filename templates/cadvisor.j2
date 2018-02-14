@@ -3,7 +3,7 @@
 
 # Docker endpoint to connect to
 # Default: unix:///var/run/docker.sock
-{% if not config.docker_installed %}
+{% if config.standalone %}
 CADVISOR_DOCKER_ENDPOINT=""
 {% else %}
 CADVISOR_DOCKER_ENDPOINT="unix:///var/run/docker.sock"
@@ -26,7 +26,7 @@ CADVISOR_PORT="8080"
 #  - bigquery
 #  - influxdb
 CADVISOR_STORAGE_DRIVER=""
-
+{% if config.storage %}
 # Storage driver host
 # Default: localhost:8086"
 CADVISOR_STORAGE_DRIVER_HOST="localhost:8086"
@@ -42,7 +42,23 @@ CADVISOR_STORAGE_DRIVER_SECURE="false"
 # Storage driver user
 # Default: root
 CADVISOR_STORAGE_DRIVER_USER="root"
+{% else %}
+# Storage driver host
+# Default: localhost:8086"
+CADVISOR_STORAGE_DRIVER_HOST=""
 
+# Storage driver password
+# Default: root
+CADVISOR_STORAGE_DRIVER_PASSWORD=""
+
+# Storage driver secure connection
+# Default: false
+CADVISOR_STORAGE_DRIVER_SECURE=""
+
+# Storage driver user
+# Default: root
+CADVISOR_STORAGE_DRIVER_USER=""
+{% endif %}
 # Log to stderr ("true" logs to journal on systemd
 # and to "/var/log/cadvisor.log" on SysV)
 # Default: false
