@@ -23,9 +23,15 @@ options:
     type: string
     description: |
       Proxy URL to use for install_file
-  docker_installed:
+  standalone:
+    type: boolean
+    default: true
+    description: |
+      This is only for Trusty distro without docker and running as standalone. Once enabled,
+      it will connect to default docker endpoint (unix:///var/run/docker.sock).
+  storage:
     type: boolean
     default: false
     description: |
-      This is only for Trusty distro withou docker. Once enabled, it will connect to
-      default docker endpoint (unix:///var/run/docker.sock)
+      Storage driver to use. Data is always cached shortly in memory, this controls
+      where data is pushed besides the local cache. Default is storage_driver_host=localhost:8086

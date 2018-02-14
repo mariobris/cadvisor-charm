@@ -14,4 +14,4 @@
 "provides":
   "target":
     "interface": "http"
-"subordinate": !!bool "false"
+"subordinate": !!bool "true"

@@ -100,12 +100,25 @@ def configure_cadvisor_relation(target):
       target.configure(hostname=hostname, port=config.get('port'))
       hookenv.status_set('active', 'Ready')
 
+    principal_unit = get_principal_unit()
+    for relation_id in hookenv.relation_ids('target'):
+        hookenv.relation_set(relation_id, {'principal-unit': principal_unit})
+
 @when('cadvisor.started')
 @when_not('target.available')
 def setup_target_relation():
     hookenv.status_set('waiting', 'Waiting for: prometheus')
 
+@when('cadvisor.started')
+@when('host-system.available')
+def get_principal_unit():
+    '''Return the principal unit for this subordinate.'''
+    for relation_id in hookenv.relation_ids('host-system'):
+        for relation_data in hookenv.relations_for_id(relation_id):
+            return relation_data['__unit__']
+
 @when('config.changed')
+def cadvisor_reconfigure():
     remove_state('cadvisor.configured')
 
 @hook('stop')
@@ -113,5 +126,6 @@ def hook_handler_stop():
     set_state('cadvisor.stopped')
 
 @when('cadvisor.stopped')
+@when_not('host-system.available')
 def remove_packages():
    fetch.apt_purge(PKGNAMES, fatal=True)
