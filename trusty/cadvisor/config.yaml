@@ -27,8 +27,8 @@
     "type": "boolean"
     "default": !!bool "true"
     "description": |
-      This is only for Trusty distro withou docker. Once enabled, it will connect to
-      default docker endpoint (unix:///var/run/docker.sock)
+      This is only for Trusty distro without docker and running as standalone. Once enabled,
+      it will connect to default docker endpoint (unix:///var/run/docker.sock).
   "storage":
     "type": "boolean"
     "default": !!bool "false"

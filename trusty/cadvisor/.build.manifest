@@ -40,7 +40,7 @@
     "config.yaml": [
       "cadvisor", 
       "dynamic", 
-      "63718251dcddf5734f2c9df851b1bbd90fa49680fae0c2e2e2540eccdbee52a9"
+      "c51347d6bff903a747770024c3858043b1df7e2e6c352ea2ffc0e3f25a3c95ff"
     ], 
     "copyright": [
       "layer:basic", 
@@ -365,7 +365,7 @@
     "metadata.yaml": [
       "cadvisor", 
       "dynamic", 
-      "2b49f02bafb1b8f9c75110ae40053f7285eb3603e1115ce9db89bc7e01baef68"
+      "0686fdcf269784800fb5a384fc0e9dab6f9d2ea3dfcab9f5252b6e78cb560e07"
     ], 
     "reactive/__init__.py": [
       "layer:basic", 
@@ -375,7 +375,7 @@
     "reactive/cadvisor.py": [
       "cadvisor", 
       "static", 
-      "5bb6dad3254dab0ec23269f7019e6f5376d53a27b9ac754115dc05957e93cd44"
+      "8955e0f8d351002d953b657326e4fd28b691af4caa9f2354fc4f4df4bf6565ed"
     ], 
     "requirements.txt": [
       "layer:basic", 
@@ -385,7 +385,7 @@
     "templates/cadvisor.j2": [
       "cadvisor", 
       "static", 
-      "d9833a89b1c67088d0366f85d0dfff4d9f1d753a43418e178a27247a37718808"
+      "2838bc521de2688f7247329c188b29d27d85648947612aae9e14ab816f4db2e9"
     ], 
     "tests/00-setup": [
       "cadvisor", 
