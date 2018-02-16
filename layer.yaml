@@ -4,6 +4,7 @@ options:
     include_system_packages: true
 includes:
   - 'layer:basic'
+  - 'layer:apt'
   - 'interface:http'
   - 'interface:juju-info'
-repo: git@gitlab.tools.in.pan-net.eu:x258599/cadvisor_charm.git
+repo: git@gitlab.tools.in.pan-net.eu:charm/cadvisor.git

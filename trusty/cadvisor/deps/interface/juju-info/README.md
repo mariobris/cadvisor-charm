@@ -24,13 +24,13 @@ An example of a properly implemented relationship would resemble the following:
 
 ```yaml
 requires:
-  host-system:
+  host:
     interface: juju-info
 ```
 
 The respective states in your charm would then be:
 
 ```python
-@when_any('host-system.available', 'host-system.connected')
+@when_any('host.available', 'host.connected')
 ```
 

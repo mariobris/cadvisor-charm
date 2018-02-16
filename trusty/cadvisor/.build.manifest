@@ -212,22 +212,22 @@
       "static", 
       "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
     ], 
-    "hooks/host-system-relation-broken": [
+    "hooks/host-relation-broken": [
       "interface:juju-info", 
       "dynamic", 
       "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
     ], 
-    "hooks/host-system-relation-changed": [
+    "hooks/host-relation-changed": [
       "interface:juju-info", 
       "dynamic", 
       "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
     ], 
-    "hooks/host-system-relation-departed": [
+    "hooks/host-relation-departed": [
       "interface:juju-info", 
       "dynamic", 
       "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
     ], 
-    "hooks/host-system-relation-joined": [
+    "hooks/host-relation-joined": [
       "interface:juju-info", 
       "dynamic", 
       "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"

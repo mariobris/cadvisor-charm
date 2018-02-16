@@ -5,11 +5,11 @@ options:
     description: "cAdvisor listening port."
   install_source:
     type: string
-    default:
+    default: ""
     description: "A short description of the configuration option"
   install_keys:
     type: string
-    default: 
+    default: "" 
     description: "A short description of the configuration option"
   install_file:
     type: string
@@ -19,7 +19,7 @@ options:
       and install_keys opetinos are ignored. Example: |
         install_file: htt://my.company.com/packages/cadvisor/cadvisor_0.25_amd64.deb
   http_proxy:
-    default:
+    default: ""
     type: string
     description: |
       Proxy URL to use for install_file
@@ -29,9 +29,3 @@ options:
     description: |
       This is only for Trusty distro without docker and running as standalone. Once enabled,
       it will connect to default docker endpoint (unix:///var/run/docker.sock).
-  storage:
-    type: boolean
-    default: false
-    description: |
-      Storage driver to use. Data is always cached shortly in memory, this controls
-      where data is pushed besides the local cache. Default is storage_driver_host=localhost:8086

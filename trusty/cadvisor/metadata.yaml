@@ -1,4 +1,4 @@
-"name": "cadvisor"
+"name": "cadvisor-devel"
 "summary": "container monitoring tool"
 "maintainer": "Mario Bris <Mario.Bris@EliteBook>"
 "description": |
@@ -8,7 +8,7 @@
 - "monitoring"
 - "performance"
 "requires":
-  "host-system":
+  "host":
     "interface": "juju-info"
     "scope": "container"
 "provides":

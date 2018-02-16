@@ -12,6 +12,6 @@ provides:
   target:
     interface: http
 requires:
-  host-system:
+  host:
     interface: juju-info
     scope: container

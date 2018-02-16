@@ -1,6 +1,7 @@
 import subprocess
 import requests
 import os
+import tempfile
 
 from charmhelpers import fetch
 from charmhelpers.core import hookenv, host, unitdata
@@ -26,15 +27,15 @@ def install_cadvisor():
     else:
         proxy = {}
 
-    if config.changed('install_file') and config.get('install_file', False):
+    if config.get('install_file', False):
         hookenv.status_set('maintenance', 'Installing deb pkgs')
-        pkg_file = '/tmp/cadvisor.deb'
-        with open(pkg_file, 'wb') as f:
+        with tempfile.NamedTemporaryFile(suffix='.deb') as f:
             r = requests.get(config.get('install_file'), stream=True,
                              proxies=proxy)
             for block in r.iter_content(1024):
                 f.write(block)
-        subprocess.check_call(['dpkg', '-i', pkg_file])
+            f.flush()
+            subprocess.check_call(['dpkg', '-i', f.name])
     elif any(config.changed(opt) for opt in install_opts):
         hookenv.status_set('maintenance', 'Installing deb pkgs')
         packages = ['cadvisor']
@@ -42,10 +43,6 @@ def install_cadvisor():
         fetch.apt_install(packages)
     set_state('cadvisor.installed')
     hookenv.status_set('active', 'Completed installing cAdvisor')
-# Install from --resources cadvisor=cadvisor.deb
-#    deb_path = hookenv.resource_get('cadvisor')
-#    if deb_path and hookenv.os.stat(deb_path).st_size != 0 and deb_path.endswith(".deb"):
-#        subprocess.check_call(['dpkg', '-i', deb_path])
     set_state('cadvisor.installed')
 
 @when('cadvisor.installed')
@@ -89,6 +86,10 @@ def check_ports(new_port):
         kv.set('cadvisor.port', new_port)
 
 @when('cadvisor.started')
+@when_not('target.available')
+def setup_target_relation():
+    hookenv.status_set('waiting', 'Waiting for: prometheus')
+
 @when('target.available')
 def configure_cadvisor_relation(target):
     config = hookenv.config() 
@@ -101,21 +102,19 @@ def configure_cadvisor_relation(target):
       hookenv.status_set('active', 'Ready')
 
     principal_unit = get_principal_unit()
-    for relation_id in hookenv.relation_ids('target'):
-        hookenv.relation_set(relation_id, {'principal-unit': principal_unit})
+    for conv in target.conversations():
+        conv.set_remote('principal-unit', principal_unit)
 
-@when('cadvisor.started')
-@when_not('target.available')
-def setup_target_relation():
-    hookenv.status_set('waiting', 'Waiting for: prometheus')
+@when('host.available')
+def host_system_available():
+    kv = unitdata.kv()
+    for conv in host.conversations():
+       kv.set('cadvisor.principal_unit', conv.get_remote('private-address')) 
 
-@when('cadvisor.started')
-@when('host-system.available')
 def get_principal_unit():
     '''Return the principal unit for this subordinate.'''
-    for relation_id in hookenv.relation_ids('host-system'):
-        for relation_data in hookenv.relations_for_id(relation_id):
-            return relation_data['__unit__']
+    kv = unitdata.kv()
+    return kv.get('cadvisor.principal_unit')
 
 @when('config.changed')
 def cadvisor_reconfigure():
@@ -126,6 +125,6 @@ def hook_handler_stop():
     set_state('cadvisor.stopped')
 
 @when('cadvisor.stopped')
-@when_not('host-system.available')
+@when_not('host.available')
 def remove_packages():
    fetch.apt_purge(PKGNAMES, fatal=True)
