@@ -32,7 +32,7 @@
     "README.md": [
       "cadvisor", 
       "static", 
-      "a48bacf78bbdd13c45530dd3f3344cf2c52d80b924bc048efeb107b75afad6c7"
+      "1b0c45f2a9ef168976cb216392caa6fcc1c5ad5f3a4226981c5fa32c878a65c0"
     ], 
     "bin/layer_option": [
       "layer:basic", 
@@ -447,7 +447,7 @@
     "reactive/cadvisor.py": [
       "cadvisor", 
       "static", 
-      "c373bdd2a0ecdcf86aeacd723a01975058ebee9fc069d17daa4aa81d6cbb9bb3"
+      "a9848da142dfcb170bb9a0e9e1b257c7ed194fce065220f7357ec8fcf796c1ff"
     ], 
     "requirements.txt": [
       "layer:basic", 

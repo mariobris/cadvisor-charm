@@ -4,7 +4,7 @@ import os
 import tempfile
 
 from charmhelpers import fetch
-from charmhelpers.core import hookenv, juju-info, unitdata
+from charmhelpers.core import hookenv, host, unitdata
 from charmhelpers.core.templating import render
 from charms.reactive import when, when_not, set_state, remove_state, hook
 from charms.reactive.helpers import any_file_changed, is_state, data_changed
@@ -15,6 +15,16 @@ PKGNAMES = 'cadvisor'
 CADVISOR = '/etc/default/cadvisor'
 CADVISOR_TMPL = 'cadvisor.j2'
 
+# Utilities
+def check_ports(new_port):
+    kv = unitdata.kv()
+    if kv.get('cadvisor.port') != new_port:
+        hookenv.open_port(new_port)
+        if kv.get('cadvisor.port'):  # Dont try to close non existing ports
+            hookenv.close_port(kv.get('cadvisor.port'))
+        kv.set('cadvisor.port', new_port)
+
+# States
 @when_not('cadvisor.installed')
 def install_cadvisor():
     config = hookenv.config()
@@ -54,7 +64,7 @@ def setup_cadvisor():
     config = hookenv.config()
     settings = {'config': config}
     render(source=CADVISOR_TMPL,
-           prometheus-client=CADVISOR,
+           target=CADVISOR,
            context=settings,
            perms=0o640,
            )
@@ -66,47 +76,38 @@ def setup_cadvisor():
 @when('cadvisor.configured')
 @when_not('cadvisor.started')
 def restart_cadvisor():
-    if not juju-info.service_running(SVCNAME):
+    if not host.service_running(SVCNAME):
         msg = 'Starting {}'.format(SVCNAME)
         hookenv.status_set('maintenance', msg)
         hookenv.log(msg)
-        juju-info.service_start(SVCNAME)
+        host.service_start(SVCNAME)
     elif any_file_changed([CADVISOR]):
         msg = 'Restarting {}'.format(SVCNAME)
         hookenv.log(msg)
         hookenv.status_set('maintenance', msg)
-        juju-info.service_restart(SVCNAME)
+        host.service_restart(SVCNAME)
     set_state('cadvisor.started')
     hookenv.status_set('active', 'Ready')
 
-def check_ports(new_port):
-    kv = unitdata.kv()
-    if kv.get('cadvisor.port') != new_port:
-        hookenv.open_port(new_port)
-        if kv.get('cadvisor.port'):  # Dont try to close non existing ports
-            hookenv.close_port(kv.get('cadvisor.port'))
-        kv.set('cadvisor.port', new_port)
-
 @when('cadvisor.started')
 @when_not('prometheus-client.available')
-def setup_prometheus-client_relation():
+def setup_prometheus_client_relation():
     hookenv.status_set('waiting', 'Waiting for: prometheus')
 
 @when('prometheus-client.available')
-def configure_cadvisor_relation(prometheus-client):
+def configure_cadvisor_relation(prometheus_client):
     config = hookenv.config() 
+    kv = unitdata.kv()
     if data_changed('prometheus-client.config', config):
       try: 
         hostname=hookenv.network_get_primary_address('prometheus-client')
       except NotImplementedError:
         hostname=hookenv.unit_get('private-address')
-      prometheus-client.configure(hostname=hostname, port=config.get('port'))
+      prometheus_client.configure(hostname=hostname, port=config.get('port'))
       hookenv.status_set('active', 'Ready')
 
-#    principal_unit = get_principal_unit()
-    kv = unitdata.kv()
     principal_unit = kv.get('cadvisor.principal_unit')
-    for conv in prometheus-client.conversations():
+    for conv in prometheus_client.conversations():
         conv.set_remote('principal-unit', principal_unit)
 
 @when('juju-info.available')
@@ -115,11 +116,6 @@ def juju_info_available():
     for relation_id in hookenv.relation_ids('juju-info'):
         for relation_data in hookenv.relations_for_id(relation_id):
             kv.set('cadvisor.principal_unit', relation_data['__unit__']) 
-
-#def get_principal_unit():
-#    '''Return the principal unit for this subordinate.'''
-#    kv = unitdata.kv()
-#    return kv.get('cadvisor.principal_unit')
 
 @when('config.changed')
 def cadvisor_reconfigure():

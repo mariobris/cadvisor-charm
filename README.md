@@ -22,5 +22,6 @@ prometheus will pull from.
 
 ## TODO
 
-Currently the charm is set up to run cadvisor as 'standalone' as there's no docker used for trusty systems.
+* Promreg - updating and deleting of targets via a REST API and without reloading the Prometheus configuration.
+* Currently the charm is set up to run cadvisor as 'standalone' as there's no docker used for trusty systems.
 More configuration options will be added as needed.
