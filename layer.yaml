@@ -5,6 +5,7 @@ options:
 includes:
   - 'layer:basic'
   - 'layer:apt'
+  - 'layer:promreg-client'
   - 'interface:http'
   - 'interface:juju-info'
 repo: git@gitlab.tools.in.pan-net.eu:charm/cadvisor.git

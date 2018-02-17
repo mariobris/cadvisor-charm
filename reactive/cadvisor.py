@@ -4,10 +4,11 @@ import os
 import tempfile
 
 from charmhelpers import fetch
-from charmhelpers.core import hookenv, host, unitdata
+from charmhelpers.core import hookenv, juju-info, unitdata
 from charmhelpers.core.templating import render
 from charms.reactive import when, when_not, set_state, remove_state, hook
 from charms.reactive.helpers import any_file_changed, is_state, data_changed
+from charms import promreg
 
 SVCNAME = 'cadvisor'
 PKGNAMES = 'cadvisor'
@@ -28,7 +29,6 @@ def install_cadvisor():
         proxy = {}
 
     if config.get('install_file', False):
-        hookenv.status_set('maintenance', 'Installing deb pkgs')
         with tempfile.NamedTemporaryFile(suffix='.deb') as f:
             r = requests.get(config.get('install_file'), stream=True,
                              proxies=proxy)
@@ -36,14 +36,16 @@ def install_cadvisor():
                 f.write(block)
             f.flush()
             subprocess.check_call(['dpkg', '-i', f.name])
+        set_state('cadvisor.installed')
+        hookenv.status_set('active', 'Completed installing cAdvisor')
+        set_state('cadvisor.installed')
     elif any(config.changed(opt) for opt in install_opts):
-        hookenv.status_set('maintenance', 'Installing deb pkgs')
-        packages = ['cadvisor']
         fetch.configure_sources(update=True)
-        fetch.apt_install(packages)
-    set_state('cadvisor.installed')
-    hookenv.status_set('active', 'Completed installing cAdvisor')
-    set_state('cadvisor.installed')
+        fetch.apt_update()
+        fetch.apt_install(PKGNAMES)
+        set_state('cadvisor.installed')
+        hookenv.status_set('active', 'Completed installing cAdvisor')
+        set_state('cadvisor.installed')
 
 @when('cadvisor.installed')
 @when_not('cadvisor.configured')
@@ -52,7 +54,7 @@ def setup_cadvisor():
     config = hookenv.config()
     settings = {'config': config}
     render(source=CADVISOR_TMPL,
-           target=CADVISOR,
+           prometheus-client=CADVISOR,
            context=settings,
            perms=0o640,
            )
@@ -64,16 +66,16 @@ def setup_cadvisor():
 @when('cadvisor.configured')
 @when_not('cadvisor.started')
 def restart_cadvisor():
-    if not host.service_running(SVCNAME):
+    if not juju-info.service_running(SVCNAME):
         msg = 'Starting {}'.format(SVCNAME)
         hookenv.status_set('maintenance', msg)
         hookenv.log(msg)
-        host.service_start(SVCNAME)
+        juju-info.service_start(SVCNAME)
     elif any_file_changed([CADVISOR]):
         msg = 'Restarting {}'.format(SVCNAME)
         hookenv.log(msg)
         hookenv.status_set('maintenance', msg)
-        host.service_restart(SVCNAME)
+        juju-info.service_restart(SVCNAME)
     set_state('cadvisor.started')
     hookenv.status_set('active', 'Ready')
 
@@ -86,35 +88,38 @@ def check_ports(new_port):
         kv.set('cadvisor.port', new_port)
 
 @when('cadvisor.started')
-@when_not('target.available')
-def setup_target_relation():
+@when_not('prometheus-client.available')
+def setup_prometheus-client_relation():
     hookenv.status_set('waiting', 'Waiting for: prometheus')
 
-@when('target.available')
-def configure_cadvisor_relation(target):
+@when('prometheus-client.available')
+def configure_cadvisor_relation(prometheus-client):
     config = hookenv.config() 
-    if data_changed('target.config', config):
+    if data_changed('prometheus-client.config', config):
       try: 
-        hostname=hookenv.network_get_primary_address('target')
+        hostname=hookenv.network_get_primary_address('prometheus-client')
       except NotImplementedError:
         hostname=hookenv.unit_get('private-address')
-      target.configure(hostname=hostname, port=config.get('port'))
+      prometheus-client.configure(hostname=hostname, port=config.get('port'))
       hookenv.status_set('active', 'Ready')
 
-    principal_unit = get_principal_unit()
-    for conv in target.conversations():
+#    principal_unit = get_principal_unit()
+    kv = unitdata.kv()
+    principal_unit = kv.get('cadvisor.principal_unit')
+    for conv in prometheus-client.conversations():
         conv.set_remote('principal-unit', principal_unit)
 
-@when('host.available')
-def host_system_available():
+@when('juju-info.available')
+def juju_info_available():
     kv = unitdata.kv()
-    for conv in host.conversations():
-       kv.set('cadvisor.principal_unit', conv.get_remote('private-address')) 
+    for relation_id in hookenv.relation_ids('juju-info'):
+        for relation_data in hookenv.relations_for_id(relation_id):
+            kv.set('cadvisor.principal_unit', relation_data['__unit__']) 
 
-def get_principal_unit():
-    '''Return the principal unit for this subordinate.'''
-    kv = unitdata.kv()
-    return kv.get('cadvisor.principal_unit')
+#def get_principal_unit():
+#    '''Return the principal unit for this subordinate.'''
+#    kv = unitdata.kv()
+#    return kv.get('cadvisor.principal_unit')
 
 @when('config.changed')
 def cadvisor_reconfigure():
@@ -125,6 +130,6 @@ def hook_handler_stop():
     set_state('cadvisor.stopped')
 
 @when('cadvisor.stopped')
-@when_not('host.available')
+@when_not('juju-info.available')
 def remove_packages():
    fetch.apt_purge(PKGNAMES, fatal=True)

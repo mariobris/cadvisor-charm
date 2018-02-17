@@ -1,4 +1,0 @@
-name: juju-info
-summary: Used in subordinate charms (rarely)
-version: 1
-maintainer: "Charles Butler <charles.butler@canonical.com>"

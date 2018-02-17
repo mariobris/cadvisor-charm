@@ -9,9 +9,9 @@ tags:
   - performance
 subordinate: true
 provides:
-  target:
+  prometheus-client:
     interface: http
 requires:
-  host:
+  juju-info:
     interface: juju-info
     scope: container
