@@ -1,0 +1,58 @@
+"options":
+  "extra_packages":
+    "description": "Space separated list of extra deb packages to install.\n"
+    "type": "string"
+    "default": ""
+  "package_status":
+    "default": "install"
+    "type": "string"
+    "description": "The status of service-affecting packages will be set to this value\
+      \ in the dpkg database. Valid values are \"install\" and \"hold\".\n"
+  "install_sources":
+    "description": "List of extra apt sources, per charm-helpers standard format (a\
+      \ yaml list of strings encoded as a string). Each source may be either a line\
+      \ that can be added directly to sources.list(5), or in the form ppa:<user>/<ppa-name>\
+      \ for adding Personal Package Archives, or a distribution component to enable.\n"
+    "type": "string"
+    "default": ""
+  "install_keys":
+    "description": "List of signing keys for install_sources package sources, per\
+      \ charmhelpers standard format (a yaml list of strings encoded as a string).\
+      \ The keys should be the full ASCII armoured GPG public keys. While GPG key\
+      \ ids are also supported and looked up on a keyserver, operators should be aware\
+      \ that this mechanism is insecure. null can be used if a standard package signing\
+      \ key is used that will already be installed on the machine, and for PPA sources\
+      \ where the package signing key is securely retrieved from Launchpad.\n"
+    "type": "string"
+    "default": ""
+  "promreg_authtoken":
+    "type": "string"
+    "default": ""
+    "description": "The Prometheus Registration authtoken."
+  "promreg_url":
+    "default": ""
+    "type": "string"
+    "description": "The http(s) url and port where the Prometheus Registration service\
+      \ is listening."
+  "port":
+    "type": "int"
+    "default": !!int "8080"
+    "description": "cAdvisor listening port."
+  "install_file":
+    "type": "string"
+    "default": "http://archive.ubuntu.com/extra/cadvisor/cadvisor_0.28.3.6+5a2e3d06pannet_amd64.deb"
+    "description": |
+      Location where cAdvisor .deb package can be found. If isntall_sources
+      and install_keys opetinos are ignored. Example: |
+        install_file: htt://my.company.com/packages/cadvisor/cadvisor_0.25_amd64.deb
+  "http_proxy":
+    "default": ""
+    "type": "string"
+    "description": |
+      Proxy URL to use for install_file
+  "standalone":
+    "type": "boolean"
+    "default": !!bool "true"
+    "description": |
+      This is only for Trusty distro without docker and running as standalone. Once enabled,
+      it will connect to default docker endpoint (unix:///var/run/docker.sock).

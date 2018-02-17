@@ -1,0 +1,20 @@
+"options":
+  "basic":
+    "packages":
+    - "python3-requests"
+    "use_venv": !!bool "true"
+    "include_system_packages": !!bool "true"
+  "cadvisor": {}
+  "promreg-client": {}
+  "apt":
+    "version_package": ""
+    "packages": []
+    "full_version": !!bool "false"
+"includes":
+- "layer:basic"
+- "layer:apt"
+- "layer:promreg-client"
+- "interface:http"
+- "interface:juju-info"
+"repo": "git@gitlab.tools.in.pan-net.eu:charm/cadvisor.git"
+"is": "cadvisor"
