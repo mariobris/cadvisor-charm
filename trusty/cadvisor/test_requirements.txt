@@ -1,3 +1,0 @@
-charmhelpers
-mock
-nose
