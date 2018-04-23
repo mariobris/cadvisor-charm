@@ -1,23 +1,42 @@
 import subprocess
 import requests
 import os
+import tempfile
 
 from charmhelpers import fetch
 from charmhelpers.core import hookenv, host, unitdata
 from charmhelpers.core.templating import render
-from charms.reactive import when, when_not, set_state, remove_state, hook
-from charms.reactive.helpers import any_file_changed, is_state, data_changed
+from charms.reactive import when, when_not, when_any, set_flag, clear_flag, hook
+from charms.reactive.helpers import data_changed
+from charms import promreg
 
 SVCNAME = 'cadvisor'
 PKGNAMES = 'cadvisor'
 CADVISOR = '/etc/default/cadvisor'
 CADVISOR_TMPL = 'cadvisor.j2'
 
+
+# Variables
+db = unitdata.kv()
+hook_data = unitdata.HookData()
+
+
+# Utilities
+def check_ports(new_port):
+    if db.get('cadvisor.port') != new_port:
+        hookenv.open_port(new_port)
+        if db.get('cadvisor.port'):  # Dont try to close non existing ports
+            hookenv.close_port(db.get('cadvisor.port'))
+        db.set('cadvisor.port', new_port)
+
+
+# States
 @when_not('cadvisor.installed')
 def install_cadvisor():
     config = hookenv.config()
     install_opts = ('install_sources', 'install_keys')
     hookenv.status_set('maintenance', 'Installing cAdvisor')
+    os.environ['DEBIAN_FRONTEND'] = 'noninteractive'
 
     if config.get('http_proxy'):
         proxy = {"http": config.get('http_proxy'),
@@ -26,32 +45,28 @@ def install_cadvisor():
     else:
         proxy = {}
 
-    if config.changed('install_file') and config.get('install_file', False):
-        hookenv.status_set('maintenance', 'Installing deb pkgs')
-        pkg_file = '/tmp/cadvisor.deb'
-        with open(pkg_file, 'wb') as f:
+    if config.get('install_file', False):
+        with tempfile.NamedTemporaryFile(suffix='.deb') as f:
             r = requests.get(config.get('install_file'), stream=True,
                              proxies=proxy)
             for block in r.iter_content(1024):
                 f.write(block)
-        subprocess.check_call(['dpkg', '-i', pkg_file])
-    elif any(config.changed(opt) for opt in install_opts):
-        hookenv.status_set('maintenance', 'Installing deb pkgs')
-        packages = ['cadvisor']
-        fetch.configure_sources(update=True)
-        fetch.apt_install(packages)
-    set_state('cadvisor.installed')
-    hookenv.status_set('active', 'Completed installing cAdvisor')
-# Install from --resources cadvisor=cadvisor.deb
-#    deb_path = hookenv.resource_get('cadvisor')
-#    if deb_path and hookenv.os.stat(deb_path).st_size != 0 and deb_path.endswith(".deb"):
-#        subprocess.check_call(['dpkg', '-i', deb_path])
-    set_state('cadvisor.installed')
+            f.flush()
+            subprocess.check_call(['dpkg', '-i', f.name])
+        set_flag('cadvisor.installed')
+#    else:
+#        if install_opts:
+#            for opt in install_opts:
+#                fetch.configure_sources(update=True)
+#        fetch.apt_update()
+#        fetch.apt_install(PKGNAMES)
+#        hookenv.status_set('active', 'Completed installing cAdvisor')
+#        set_flag('cadvisor.installed')
+
 
 @when('cadvisor.installed')
-@when_not('cadvisor.configured')
+@when_any('config.changed.port', 'config.changed.standalone')
 def setup_cadvisor():
-    hookenv.status_set('maintenance', 'Configuring cadvisor')
     config = hookenv.config()
     settings = {'config': config}
     render(source=CADVISOR_TMPL,
@@ -60,72 +75,45 @@ def setup_cadvisor():
            perms=0o640,
            )
     check_ports(config.get('port'))
-    set_state('cadvisor.configured')
-    remove_state('cadvisor.started')
-    hookenv.status_set('active', 'Completed configuring cadvisor')
+    set_flag('cadvisor.do-restart')
 
-@when('cadvisor.configured')
-@when_not('cadvisor.started')
+
+@when('cadvisor.do-restart')
 def restart_cadvisor():
-    if not host.service_running(SVCNAME):
-        msg = 'Starting {}'.format(SVCNAME)
-        hookenv.status_set('maintenance', msg)
-        hookenv.log(msg)
-        host.service_start(SVCNAME)
-    elif any_file_changed([CADVISOR]):
-        msg = 'Restarting {}'.format(SVCNAME)
-        hookenv.log(msg)
-        hookenv.status_set('maintenance', msg)
-        host.service_restart(SVCNAME)
-    set_state('cadvisor.started')
+    msg = 'Restarting {}'.format(SVCNAME)
+    hookenv.log(msg)
+    hookenv.status_set('maintenance', msg)
+    host.service_restart(SVCNAME)
     hookenv.status_set('active', 'Ready')
+    clear_flag('cadvisor.do-restart')
 
-def check_ports(new_port):
-    kv = unitdata.kv()
-    if kv.get('cadvisor.port') != new_port:
-        hookenv.open_port(new_port)
-        if kv.get('cadvisor.port'):  # Dont try to close non existing ports
-            hookenv.close_port(kv.get('cadvisor.port'))
-        kv.set('cadvisor.port', new_port)
 
-@when('cadvisor.started')
-@when('target.available')
-def configure_cadvisor_relation(target):
-    config = hookenv.config() 
-    if data_changed('target.config', config):
-      try: 
-        hostname=hookenv.network_get_primary_address('target')
-      except NotImplementedError:
-        hostname=hookenv.unit_get('private-address')
-      target.configure(hostname=hostname, port=config.get('port'))
-      hookenv.status_set('active', 'Ready')
-
-    principal_unit = get_principal_unit()
-    for relation_id in hookenv.relation_ids('target'):
-        hookenv.relation_set(relation_id, {'principal-unit': principal_unit})
-
-@when('cadvisor.started')
-@when_not('target.available')
-def setup_target_relation():
+@when_not('prometheus-client.available')
+def setup_prometheus_client_relation():
     hookenv.status_set('waiting', 'Waiting for: prometheus')
 
-@when('cadvisor.started')
-@when('host-system.available')
-def get_principal_unit():
-    '''Return the principal unit for this subordinate.'''
-    for relation_id in hookenv.relation_ids('host-system'):
-        for relation_data in hookenv.relations_for_id(relation_id):
-            return relation_data['__unit__']
 
-@when('config.changed')
-def cadvisor_reconfigure():
-    remove_state('cadvisor.configured')
+@when('prometheus-client.available')
+def prometheus_client_available(prometheus_client):
+    config = hookenv.config() 
+    prometheus_client.configure(port=config.get('port'))
 
+    for relation_id in hookenv.relation_ids():
+        hookenv.relation_set(relation_id, {'principal-unit': db.get('cadvisor.principal_unit')})
+    hookenv.status_set('active', 'Ready')
+
+
+@when('juju-info.available')
+def juju_info_available():
+    db.set('cadvisor.principal_unit', os.environ.get('JUJU_PRINCIPAL_UNIT'))
+
+ 
 @hook('stop')
 def hook_handler_stop():
-    set_state('cadvisor.stopped')
+    set_flag('cadvisor.stopped')
+
 
 @when('cadvisor.stopped')
-@when_not('host-system.available')
+@when_not('juju-info.available')
 def remove_packages():
    fetch.apt_purge(PKGNAMES, fatal=True)

@@ -1,65 +1,28 @@
-# Overview
+# cAdvisor
 
-Describe the intended usage of this charm and anything unique about how this
-charm relates to others here.
+This project builds a reactive layered charm for [Advisor](https://github.com/google/cadvisor).
 
-This README will be displayed in the Charm Store, it should be either Markdown
-or RST. Ideal READMEs include instructions on how to use the charm, expected
-usage, and charm features that your audience might be interested in. For an
-example of a well written README check out Hadoop:
-http://jujucharms.com/charms/precise/hadoop
+## Build
 
-Use this as a Markdown reference if you need help with the formatting of this
-README: http://askubuntu.com/editing-help
+In this directory, with `$JUJU_REPOSITORY` set:
 
-This charm provides [service][]. Add a description here of what the service
-itself actually does.
+    $ charm build
 
-Also remember to check the [icon guidelines][] so that your charm looks good
-in the Juju GUI.
+## Usage
 
-# Usage
+This charm is a subordinate that adds an HTTP metric scrape endpoint to prometheus.
 
-Step by step instructions on using the charm:
+    $ juju deploy cadvisor
+    $ juju deploy prometheus
+    $ juju add-relation machine cadvisor
+    $ juju add-relation cadvisor prometheus:target
 
-juju deploy servicename
+This will expose HTTP operational metrics on all machine units running containers, which
+prometheus will pull from.
 
-and so on. If you're providing a web service or something that the end user
-needs to go to, tell them here, especially if you're deploying a service that
-might listen to a non-default port.
+## TODO
 
-You can then browse to http://ip-address to configure the service.
-
-## Scale out Usage
-
-If the charm has any recommendations for running at scale, outline them in
-examples here. For example if you have a memcached relation that improves
-performance, mention it here.
-
-## Known Limitations and Issues
-
-This not only helps users but gives people a place to start if they want to help
-you add features to your charm.
-
-# Configuration
-
-The configuration options will be listed on the charm store, however If you're
-making assumptions or opinionated decisions in the charm (like setting a default
-administrator password), you should detail that here so the user knows how to
-change it immediately, etc.
-
-# Contact Information
-
-Though this will be listed in the charm store itself don't assume a user will
-know that, so include that information here:
-
-## Upstream Project Name
-
-  - Upstream website
-  - Upstream bug tracker
-  - Upstream mailing list or contact information
-  - Feel free to add things if it's useful for users
-
-
-[service]: http://example.com
-[icon guidelines]: https://jujucharms.com/docs/stable/authors-charm-icon
+* Promreg - updating and deleting of targets via a REST API and without reloading the Prometheus configuration.
+* Currently the charm is set up to run cadvisor as 'standalone' as there's no docker used for trusty systems.
+More configuration options will be added as needed.
+* Add options via DAEMON_ARGS variable in /etc/init.d/cadvisor
