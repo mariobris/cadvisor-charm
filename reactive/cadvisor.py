@@ -54,14 +54,14 @@ def install_cadvisor():
             f.flush()
             subprocess.check_call(['dpkg', '-i', f.name])
         set_flag('cadvisor.installed')
-#    else:
-#        if install_opts:
-#            for opt in install_opts:
-#                fetch.configure_sources(update=True)
-#        fetch.apt_update()
-#        fetch.apt_install(PKGNAMES)
-#        hookenv.status_set('active', 'Completed installing cAdvisor')
-#        set_flag('cadvisor.installed')
+    else:
+        if install_opts:
+            for opt in install_opts:
+                fetch.configure_sources(update=True)
+        fetch.apt_update()
+        fetch.apt_install(PKGNAMES)
+        hookenv.status_set('active', 'Completed installing cAdvisor')
+        set_flag('cadvisor.installed')
 
 
 @when('cadvisor.installed')
