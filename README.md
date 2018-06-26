@@ -18,11 +18,11 @@ This charm is a subordinate that adds an HTTP metric scrape endpoint to promethe
     $ juju add-relation cadvisor prometheus:target
 
 This will expose HTTP operational metrics on all machine units running containers, which
-prometheus will pull from.
+prometheus will pull from.   
+
+Basic functionality to support LXC metrics for prometheus on Trusty systems.
 
 ## TODO
 
-* Promreg - updating and deleting of targets via a REST API and without reloading the Prometheus configuration.
-* Currently the charm is set up to run cadvisor as 'standalone' as there's no docker used for trusty systems.
 More configuration options will be added as needed.
 * Add options via DAEMON_ARGS variable in /etc/init.d/cadvisor
